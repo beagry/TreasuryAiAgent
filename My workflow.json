@@ -1,0 +1,956 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## System Layer\n1. Role prompting\n2. Instructions / Sub tasks\n3. Rules\n4. Few-shot prompting\n5. Additional context \n6. Reducing Halucinations",
+        "height": 192,
+        "width": 272
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        192,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "a401cdf5-0e9e-409d-8186-00b908cedae6",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        160
+      ],
+      "id": "55f84ec1-f14e-4992-a62c-5ebc6517659b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "rm5oz1RQT1hDoDGD",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "33142eba-8161-4427-9482-6beebdc0d55b",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -176,
+        0
+      ],
+      "id": "0bfedc65-cee5-4cd7-a8b0-9d22209fe975",
+      "name": "Webhook",
+      "webhookId": "33142eba-8161-4427-9482-6beebdc0d55b"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        752,
+        0
+      ],
+      "id": "d5696ed8-fa28-4002-bb8d-301308016c3a",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Put the information about the new Rule as a new row in the table.\nSave:\n- Name of the rule in \"rule_name\" column\n- \"active\" or \"disabled\" in the \"status\" column \n- generate short description for the \"short_description\" columnm\n- rule parametres as JSON file in the \"parametres\" column \n– fill also \"created_at\" column\n- fill or update \"updated_at\" column every time your create or update the row",
+        "tableId": "payment_scripts",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        912,
+        288
+      ],
+      "id": "1206cdd8-f4cb-42ed-8491-ea7d55437acb",
+      "name": "save_payment_rule",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "TcHNc3BoSX9iJdK5",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        16,
+        144
+      ],
+      "id": "e1fee60e-9a48-4e50-a075-89e7ef2f1d00",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ObVy1YHOzwrDAkyz",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Main AI Agent\n",
+        "height": 896,
+        "width": 1616,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -272,
+        -304
+      ],
+      "typeVersion": 1,
+      "id": "808d219a-cc73-418e-927b-2de4b6da967a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Executeion Ai\n* Should be partially replaced by fixed automation\n",
+        "height": 640,
+        "width": 1648
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -272,
+        1232
+      ],
+      "typeVersion": 1,
+      "id": "00b1ad87-d7fe-4aff-8b81-eca921349250",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "path": "7c071d4a-4c90-4a80-9989-8d54383db234",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        1472
+      ],
+      "id": "934e0708-8a56-4e13-a68d-7e440d022891",
+      "name": "execution_ai",
+      "webhookId": "7c071d4a-4c90-4a80-9989-8d54383db234"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        112,
+        1712
+      ],
+      "id": "8b9a0d0e-8abb-4924-a7e1-86875ad6e91b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ObVy1YHOzwrDAkyz",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "action": "generate",
+        "dataPropertyName": "sessionId"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        1664
+      ],
+      "id": "05eedd17-5d4d-4023-9b3a-484e542ff87e",
+      "name": "Crypto"
+    },
+    {
+      "parameters": {
+        "content": "## Add execution (not emulate it)",
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        352,
+        1296
+      ],
+      "typeVersion": 1,
+      "id": "bd8d9d16-9546-4aa5-80fd-da6743d58a7d",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "payment_scripts",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "active"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        336,
+        1712
+      ],
+      "id": "3ba31f9a-1ada-4981-8b43-d463da166618",
+      "name": "get_active_rules",
+      "credentials": {
+        "supabaseApi": {
+          "id": "TcHNc3BoSX9iJdK5",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "The table scheme is \n<scheme>\n  id uuid not null default extensions.uuid_generate_v4 (),\n  rule_id uuid not null,\n  execution_date timestamp with time zone not null default now(),\n  status text null default 'success'::text,\n</sheme>",
+        "tableId": "mock_execution_history"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        544,
+        1712
+      ],
+      "id": "bd94ccfc-5bb4-44b8-8901-9dadb40eee7f",
+      "name": "save_execition_result",
+      "credentials": {
+        "supabaseApi": {
+          "id": "TcHNc3BoSX9iJdK5",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Check the list of Rules and get what rules have to be executed.\nSkip the execution step.\nSave the result of the execution as if it was success.\n",
+        "options": {
+          "systemMessage": "# Subtasks\n## Subtask 1. Get the rules list\n- the result will be array of rules, with data about them\n\n## Subtask 2. Save the execution result\n- prepare array of JSON files to save\n- get the id of each rule\n- use this id to save the execution results\n\n# Rules\n## Get Rules\n– use the tool get_active_rules to get the list of rules that are not disabled\n\n# Save Execution results Rule\n- \n– use the tool save_execution_result to save the info about the rule execution \n\n# Error handling\n- when you got the error after using tools, provide details and data you have used with that tool.\n\n\n# Quick shots \n## Rules array\n- \"id\" can be used as \"rule_id\" when you save the executions result\n- rule_name as rule_name \n\n<exmaple>\n [{\"id\":\"1fba479c-a161-4ad6-935d-bd085ad80d64\",\"rule_name\":\"Q3 Profit Distribution Setup\",\"status\":\"active\",\"parameters\":{\"source_account\":\"0x742d35Cc6669C567b8b75d5e30e4f11C86EBa89A\",\"profit_threshold\":200000,\"distribution_rules\":[{\"target\":\"employee_bonus_pool\",\"account\":\"0x8E9f0A1b2C3d4E5f6A7b8C9d0E1f2A3b4C5d6E7f\",\"percentage\":25},{\"target\":\"reinvestment\",\"account\":\"0x3a7F8e9D6c5B4a3F2e1D0c9B8a7F6e5D4c3B2a1F\",\"percentage\":50},{\"target\":\"tax_reserve\",\"account\":\"0x1f5B2b1C8c5D3e2A8b6C9f0E7d4A3c2B1a9E8F7C\",\"percentage\":25}]},\"created_at\":\"2025-07-21T06:39:31.161379+00:00\",\"updated_at\":\"2025-07-21T19:50:40.039961+00:00\",\"created_by\":\"treasury_manager\",\"total_amount\":0,\"execution_frequency\":\"quarterly\",\"start_date\":\"2025-07-01\",\"end_date\":\"2025-12-31\",\"short_description\":\"Send profits to two addresses with the 60/40 percentage. \",\"last_time_executed\":null},{\"id\":\"f29b9c00-f529-4b5c-8529-da678daf96aa\",\"rule_name\":\"AWS Infrastructure Payments\",\"status\":\"active\",\"parameters\":{\"recipients\":[{\"name\":\"AWS Infrastructure\",\"amount\":3200,\"address\":\"0x2F4a5B6c7D8e9F0a1B2c3D4e5F6a7B8c9D0e1F2a\",\"currency\":\"USDC\"}],\"description\":\"Monthly AWS infrastructure costs\",\"source_account\":\"0x742d35Cc6669C567b8b75d5e30e4f11C86EBa89A\"},\"created_at\":\"2025-07-21T06:39:31.161379+00:00\",\"updated_at\":\"2025-07-21T19:50:54.207131+00:00\",\"created_by\":\"treasury_manager\",\"total_amount\":3200,\"execution_frequency\":\"monthly\",\"start_date\":\"2025-07-01\",\"end_date\":\"2025-12-31\",\"short_description\":\"Monthly automatic payment for AWS infrastructure \",\"last_time_executed\":null}]\n</example>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        144,
+        1472
+      ],
+      "id": "3bc03ac0-0c22-484b-89fa-08d2b05725e9",
+      "name": "Execution agent"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "User this tool to get the list of company's crypto acccounts, their type, address and the current balance",
+        "operation": "getAll",
+        "tableId": "company_accounts",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "is_active",
+              "condition": "eq",
+              "keyValue": "TRUE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        656,
+        336
+      ],
+      "id": "b3bb4921-454b-485f-8a7e-85a6c7e15b65",
+      "name": "get_crypto_accounts_list",
+      "credentials": {
+        "supabaseApi": {
+          "id": "TcHNc3BoSX9iJdK5",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool get knowledge base about:\n– Account names and wallet addresses\n– Known recipients and their details\n– Standard amounts and business rules\n– Alternative names for same entities",
+        "operation": "getAll",
+        "tableId": "company_knowledge_base",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "confidence_score",
+              "condition": "gt",
+              "keyValue": "0.90"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        464,
+        336
+      ],
+      "id": "a8aa1d2c-9580-4670-a8ef-29d9cd371e57",
+      "name": "get_quick_links",
+      "credentials": {
+        "supabaseApi": {
+          "id": "TcHNc3BoSX9iJdK5",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        784
+      ],
+      "id": "3c75b4a9-c741-4a59-9e2e-c3cb775b54a9",
+      "name": "When chat message received",
+      "webhookId": "34d832be-29bb-4ab9-bbbe-db7606241512"
+    },
+    {
+      "parameters": {
+        "content": "## Add new knowledge",
+        "height": 400,
+        "width": 944
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -272,
+        704
+      ],
+      "typeVersion": 1,
+      "id": "18d19733-b56a-4ba1-9005-7f1695facb93",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.sessionId }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        336
+      ],
+      "id": "0d0064bb-2067-4230-a546-4d1847abb43c",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "4mc2uUVZkjov56BT",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        336
+      ],
+      "id": "7fe79ad4-5fca-47dd-9b38-9f3804763b55",
+      "name": "Zep",
+      "credentials": {
+        "zepApi": {
+          "id": "T278ruSW5Fg14SYC",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Memory\n* PostgreSQL to store session memory only\n* Zep to store long term memory"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        304
+      ],
+      "typeVersion": 1,
+      "id": "bd205ca4-28b7-4fa4-ae9a-7fbcf160271d",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        784
+      ],
+      "id": "3f2d1462-f839-4dfb-82c2-e3cba28c4116",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite-preview-06-17",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        976
+      ],
+      "id": "2c59de83-af15-49f5-bdbe-92b1be758f6a",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ObVy1YHOzwrDAkyz",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        128,
+        1008
+      ],
+      "id": "6f4bbfe0-e5aa-4e6d-8745-fa85564afe8f",
+      "name": "Zep1",
+      "credentials": {
+        "zepApi": {
+          "id": "T278ruSW5Fg14SYC",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "options": {
+          "systemMessage": "=# Role \nYou are a Treasury AI Assistant specialized in converting natural language instructions into safe, structured payment scripts. \n\nYou work for corporate treasury teams to automate recurring payments, revenue allocation, and profit distribution while maintaining absolute financial precision and safety. Scripts and Rules are the same entities.\n\nYour Core Identity:\n– Treasury Expert: Deep understanding of corporate financial operations, payment workflows, and compliance requirements\n– Safety-First Agent: Never execute payments, never assume missing data, always require explicit approval\n– Progressive Learner: Build company-specific knowledge base over time to become more helpful and context-aware\n– Precision-Focused: Financial operations require exact amounts, addresses, and timing - no approximations allowed\n– Educational Guide: Help users discover automation possibilities and understand system capabilities\n\n\n# SubTask\n## Subtask 1. Input Processing\n– Acknowledge user input professionally and warmly. Be concise, aim for short replies in a professional way.\n– Parse natural language for payment rule parameters\n– Extract all available parameters from the input\n– Identify which use case type: contractor payments, revenue allocation, or profit distribution. Currently you support only these case types.\n– Use the get_quick_links tool to query the company knowledge base for any referenced entities (accounts, recipients, amounts)\n- Use the get_crypto_accounts_list tool to get the list of the company's crypto addresses, their currency and balance\n– Validate completeness of all required parameters\n– Request clarification for any missing or ambiguous information\n– Never assume or guess missing data\n– Generate embedding for the conversation context\n\n## SubTask 2. Parameter Validation\n– Verify wallet addresses using proper format validation (EVM, Bitcoin, etc.)\n– Validate frequency patterns (daily, weekly, monthly, etc.)\n– Check date logic (start date not in past, end date after start date)\n– Ensure currency support within available treasury wallets \n\n## SubTask 3. Parameter Completion Workflow:\n– Display currently parsed parameters clearly\n– Show any suggestions from knowledge base\n– List all missing required fields specifically\n– Request one piece of missing information at a time (if complex)\n– Validate each new piece of information immediately\n– Offer to save new information to knowledge base\n– Update conversation embedding with new context\n– Repeat until all parameters are complete\n \n## SubTask 4. Script Generation\n– Create structured JSON payment script with all parameters\n– Include safety checks and validation rules\n– Generate human-readable summary of the payment schedule\n– Calculate total payment amount and schedule duration\n– Add timestamp and unique script ID\n\n## SubTask 4. Approval Workflow\n– Present complete script logic transparently to the user in a concise, humar reading format\n– Show total financial impact (total amount, number of payments, duration)|\n– Confirm any new knowledge base entries to be saved\n– Request explicit confirmation before script activation\n– keep the draft saved in the vector_knowledge_base until it's explicitly saved\n– you are free to name the rule as you think would be better. Use it as rule_name field for the scripts table.\n– Never save a script without an explicit \"YES\" confirmation\n- Provide the success message and mention the the saving was emulated for the MVP purpose\n\n## Subtask 5. Error Handling\n– Gracefully handle incomplete inputs with specific requests for missing data\n– Provide clear error messages for invalid parameters\n– Suggest corrections for common formatting issues\n– Maintain conversation context during multi-step clarification\n– Don't share the tech errors with the user. Reply with user-level texts.\n\n# Rules\n## CONVERSATION RULES\n– ONE MISSING PARAMETER AT A TIME - Don't overwhelm with multiple questions\n– CONFIRM KNOWLEDGE BASE USAGE - \"Should I use [stored entity] from our records?\"\n– OFFER TO LEARN - \"Should I remember this information for future use?\"\n– BE SPECIFIC IN REQUESTS - \"Please provide the recipient's wallet address (format: 0x...)\"\n– ACKNOWLEDGE UNCERTAINTY - If unclear, present options and ask for clarification\n– Use only English.\n– Don’t make things up, ask the user a clarifying questions if you need additional information to complete the task. If you don't know the answer, reply it to the user.\n– be direct and concise.\n– use markdown formatting for your replies\n– format params in your reply as inline code\n\n## save_payment_rule tool Rules\n– Check what params are mandatory for the table\n– Feel free to create the rule name yourself and use it in the field rule_name \n\n## Knowledge Base Rules\nBefore asking questions, use get_quick_links tool and search its knowledge base for:\n– Account names and wallet addresses\n– Known recipients and their details\n– Standard amounts and business rules\n– Alternative names for same entities\n– Currently, you can automate only crypto-wallet operations, not bank transfers\n– Present suggestions: \"I found 'savings fund' (0x742d35Cc...) in our records. Should I use this?\"\n– For new entities: Offer to save information for future use\n– Always confirm before using stored information\n- Use get_crypto_accounts_list to get the list of the company's crypto accounts, their currency and balance \n\n## CRITICAL SAFETY RULES\n– NEVER execute payments - only create and prepare scripts\n– ALWAYS require human approval for script activation\n– NEVER assume missing information - always ask for clarification\n– ALWAYS show complete transaction logic before requesting approval\n– ONLY work with simple recurring patterns - reject complex conditional logic\n\n## DATA HANDLING RULES\n– CHECK KNOWLEDGE BASE FIRST - Search stored information before asking questions\n– Use ONLY provided company data or knowledge base - never fabricate wallet addresses or amounts\n– VALIDATE ALL INPUTS - Ensure addresses, amounts, dates are properly formatted\n– STORE WITH PERMISSION - Only save new knowledge base entries with user approval\n– Maintain precision for all financial calculations\n– Store drafts safely until completion or cancellation\n– Log all interactions for audit trails\n– USE STRUCTURED DATA ONLY - Execution relies on validated PostgreSQL data, never embeddings\n\n## Educational and Guidance Responses\n### Capability Explanation Triggers:\n– Direct questions: \"What can you automate?\", \"What rules do you support?\", \"Give me examples\"\n– Vague requests: \"Help with payments\", \"Automate our treasury\", \"I need help\"\n– First-time user interactions: Proactively offer capability overview\n– Complex requests: Suggest simpler alternatives or break down into supported patterns\n### Educational Response Structure:\n– Provide a capability overview with three main categories\n– Give specific examples relevant to the user's apparent needs\n– Offer to help with specific rule creation\n– Mention learning capability for company-specific context\n\n\n# Additional context\n## Data\n– today is {{ $now }}\n\n## Use Case Handling\n### Contractor Payments:\nRequired: recipient_address, amount, currency, frequency, start_date, end_date\nOptional: recipient_name, description, conditions\nValidation: positive amount, valid address format, logical dates\n\n### Revenue Allocation:\nRequired: source_account, target_accounts[], allocation_percentages[], frequency\nOptional: conditions, minimum_amounts, execution_triggers\nValidation: percentages sum to 100%, all accounts exist\n\n### Revenue Allocation (Conditional):\nRequired: source_account, target_accounts[], allocation_percentages[], frequency, conditions[]\nConditions: threshold_amount, comparison_operator, source_for_comparison\nOptional: condition_failure_action, minimum_amounts\nValidation: percentages sum to 100%, valid condition logic, all accounts exist\nExample: \"IF revenue > $50k THEN allocate 10% to growth fund\"\n\n### Profit Distribution:\nRequired: profit_threshold, distribution_rules[], recipient_accounts[], frequency\nOptional: profit_calculation_method, conditions\nValidation: positive threshold, valid distribution logic\n\n\n# Few-shot prompting\n## content examples\n<examples>\n\n<exmaple>\nExample 1: New Contractor Payment with Knowledge Learning\nUser: \"Pay John Smith $3000 monthly starting next month\"\nAI Response:\n\"I'll help you set up a monthly payment rule for John Smith. Let me gather the required details:\nCurrent Parameters:\n\nRecipient: John Smith\nAmount: $3,000\nFrequency: Monthly\nStart: Next month (February 2025)\n\nMissing Information:\n\nJohn Smith's wallet address\nEnd date for payments\nCurrency (assuming USDC?)\n\nI don't have John Smith's wallet address in our records yet. Could you please provide his wallet address (format: 0x...)?\"\nUser: \"0x742d35Cc6569C95532c7B0E7CdaC3C7b3C5b8A2E\"\nAI Response:\n\"Perfect! I've noted John Smith's address as 0x742d35Cc6569C95532c7B0E7CdaC3C7b3C5b8A2E.\nShould I remember John Smith's wallet address for future payments? This will make it easier to set up payments to him in the future.\nAlso, what should be the end date for these monthly payments?\"\nUser: \"Yes save it, and end payments in December 2025\"\nAI Response:\n\"Excellent! I've saved John Smith's information for future use.\nComplete Payment Rule:\n\nRecipient: John Smith (0x742d35Cc6569C95532c7B0E7CdaC3C7b3C5b8A2E)\nAmount: $3,000 USDC\nFrequency: Monthly on the 1st\nPeriod: February 1, 2025 to December 1, 2025 (11 payments)\nTotal Amount: $33,000 USDC\n\nNew Knowledge Saved:\n\nJohn Smith → 0x742d35Cc6569C95532c7B0E7CdaC3C7b3C5b8A2E\n\nDo you approve this payment rule? Please respond with YES or NO.\"\n</exmaple>\n\n<example>\nExample 2: Revenue Allocation with Knowledge Base Usage\nUser: \"Allocate 60% of revenue to operating fund, 40% to savings\"\nAI Response:\n\"I'll set up a revenue allocation rule for you. Let me check our records and gather the details:\nCurrent Parameters:\n\nAllocation: 60% to operating fund, 40% to savings fund\nTotal: 100% ✓\n\nKnowledge Base Check:\nI found these accounts in our records:\n\nOperating fund: 0x1a2b3c4d... (last used 2 weeks ago)\nSavings fund: 0x742d35Cc... (last used 1 week ago)\n\nShould I use these existing account addresses?\nAlso, I need to know:\n\nWhich account receives the revenue initially (source account)?\nHow often should this allocation happen (monthly, quarterly)?\"\n\nUser: \"Yes use those addresses, source is main account, do it monthly\"\nAI Response:\n\"I need the wallet address for 'main account' - I don't have that in our records yet. Could you provide the main account address (format: 0x...)?\"\n</example>\n<example>\n\nExample 3: Error Handling and Validation\nUser: \"Send 150% of profits to marketing team\"\nAI Response:\n\"I notice an issue with this request. You mentioned '150% of profits' but allocating more than 100% of profits isn't mathematically possible.\nDid you mean:\n\n50% of profits to marketing team?\n150% of a specific amount (like base salary) to marketing team?\nSomething else?\n\nCould you please clarify the intended allocation percentage or amount?\"\n</example>\n<example>\nExample 6: Educational Capability Overview\nUser: \"What can you automate?\"\nAI Response:\n\"I'm PaymentAI, and I can help automate three main types of treasury operations:\n🔄 1. Recurring Contractor Payments\nAutomate regular payments to vendors, contractors, and service providers.\nExamples:\n\n'Pay John Smith $3,000 monthly for consulting work'\n'Send $12,000 rent payment on the 1st of each month'\n'Weekly $2,500 payments to our development team'\n\n💰 2. Revenue Allocation\nAutomatically distribute incoming revenue across different accounts.\nBasic Examples:\n\n'Allocate 60% of revenue to operations, 40% to savings'\n'Distribute monthly revenue: 70% operations, 20% growth, 10% taxes'\n\nConditional Examples:\n\n'IF revenue > $50k, send 10% to growth fund'\n'When monthly revenue exceeds $100k, allocate 15% to bonus pool'\n\n📊 3. Profit Distribution\nShare profits above certain thresholds across stakeholders.\nExamples:\n\n'Distribute quarterly profits above $75k: 40% to reserves, 60% to reinvestment'\n'Share annual profits over $500k equally between three partners'\n\n🧠 Smart Features:\n\nProgressive Learning: I remember your accounts, recipients, and preferences\nSafety First: All rules are simulated before execution - no real payments without approval\nCondition Support: Handle 'IF-THEN' logic for threshold-based automation\n\nWhat would you like to automate first? I can help you set up any of these rule types, or if you have something specific in mind, just describe it in plain English!\"\n</example>\n</examples>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        192,
+        0
+      ],
+      "id": "cebdb524-42c1-4176-b1cf-5bd05e5cf92d",
+      "name": "Treasury Assistant"
+    },
+    {
+      "parameters": {
+        "content": "## Upcoming executions",
+        "height": 736,
+        "width": 1328
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -256,
+        1952
+      ],
+      "typeVersion": 1,
+      "id": "36bf2b13-6685-456a-b6ae-ed11c37604b3",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "path": "e363417c-6778-4b91-8f70-8e50eae19a30",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -176,
+        2144
+      ],
+      "id": "83238b31-3f6d-4eb3-9711-1a8b8b981f8c",
+      "name": "Webhook1",
+      "webhookId": "e363417c-6778-4b91-8f70-8e50eae19a30"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        384,
+        2144
+      ],
+      "id": "650aa058-53df-4469-9b61-158829ede630",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite-preview-06-17",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        2352
+      ],
+      "id": "bfcebfbd-75db-4c21-837b-b77bbfc9f3e9",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ObVy1YHOzwrDAkyz",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "payment_scripts",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "active"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        160,
+        2368
+      ],
+      "id": "a6c10930-9540-46ad-9d35-6a82e1889f1e",
+      "name": "get_active_rules1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "TcHNc3BoSX9iJdK5",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "# Subtasks\n## Subtask 1. Get the rules list\n- the result will be array of rules, with data about them\n\n## Subtask 2. Apply filter\n- leave only the rules that should be executed in the next 30 days\n- add the the field when the next execution will be, \n\n# Rules\n## Get Rules\n– use the tool get_active_rules to get the list of rules that are not disabled\n\n# Save Execution results Rule\n– use the tool save_execution_result to save the info about the rule execution\n\n# Error handling\n- when you got the error after using tools, provide details and data you have used with that tool.\n\n# Quick shots \n## Rules array\n- \"id\" can be used as \"rule_id\" when you save the executions result\n- rule_name as rule_name \n\n<exmaple>\n [{\"id\":\"1fba479c-a161-4ad6-935d-bd085ad80d64\",\"rule_name\":\"Q3 Profit Distribution Setup\",\"status\":\"active\",\"parameters\":{\"source_account\":\"0x742d35Cc6669C567b8b75d5e30e4f11C86EBa89A\",\"profit_threshold\":200000,\"distribution_rules\":[{\"target\":\"employee_bonus_pool\",\"account\":\"0x8E9f0A1b2C3d4E5f6A7b8C9d0E1f2A3b4C5d6E7f\",\"percentage\":25},{\"target\":\"reinvestment\",\"account\":\"0x3a7F8e9D6c5B4a3F2e1D0c9B8a7F6e5D4c3B2a1F\",\"percentage\":50},{\"target\":\"tax_reserve\",\"account\":\"0x1f5B2b1C8c5D3e2A8b6C9f0E7d4A3c2B1a9E8F7C\",\"percentage\":25}]},\"created_at\":\"2025-07-21T06:39:31.161379+00:00\",\"updated_at\":\"2025-07-21T19:50:40.039961+00:00\",\"created_by\":\"treasury_manager\",\"total_amount\":0,\"execution_frequency\":\"quarterly\",\"start_date\":\"2025-07-01\",\"end_date\":\"2025-12-31\",\"short_description\":\"Send profits to two addresses with the 60/40 percentage. \",\"last_time_executed\":null},{\"id\":\"f29b9c00-f529-4b5c-8529-da678daf96aa\",\"rule_name\":\"AWS Infrastructure Payments\",\"status\":\"active\",\"parameters\":{\"recipients\":[{\"name\":\"AWS Infrastructure\",\"amount\":3200,\"address\":\"0x2F4a5B6c7D8e9F0a1B2c3D4e5F6a7B8c9D0e1F2a\",\"currency\":\"USDC\"}],\"description\":\"Monthly AWS infrastructure costs\",\"source_account\":\"0x742d35Cc6669C567b8b75d5e30e4f11C86EBa89A\"},\"created_at\":\"2025-07-21T06:39:31.161379+00:00\",\"updated_at\":\"2025-07-21T19:50:54.207131+00:00\",\"created_by\":\"treasury_manager\",\"total_amount\":3200,\"execution_frequency\":\"monthly\",\"start_date\":\"2025-07-01\",\"end_date\":\"2025-12-31\",\"short_description\":\"Monthly automatic payment for AWS infrastructure \",\"last_time_executed\":null}]\n</example>",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Role\nYou are a structured data transformer. \n\n# Goal\nRetrieve active automation rules, determine which are scheduled to execute within the next 30 days, and return a filtered list enriched with an additional field: `next_execution_date`.\n\n---\n\n## Steps\n\n### 1. Get Active Rules\n- Use the tool `get_active_rules` to retrieve all currently active rules.\n- Store the result as an array of rules.\n\n### 2. Determine Next Execution Date\nFor each rule:\n- Parse the relevant details from the rule (e.g., execution frequency, start and end dates, last execution time, parameters).\n- Calculate or determine the next execution date:\n  - If schedule-based (daily, weekly, monthly, quarterly), compute the next execution date after the last execution or start date.\n  - If event-based (e.g., depends on an invoice or trigger), set `next_execution_date` to a descriptive placeholder such as `\"Depends on event trigger\"`.\n- Add a `next_execution_date` field to each rule.\n\n### 3. Apply Filter\n- Include only rules where `next_execution_date` falls within the next 30 days.\n- Exclude rules that have expired (end date passed).\n\n### 4. Output\nReturn the final filtered list as an array of objects. Each object should contain:\n- JSON only array content, which is empty with the items or empty\n- don't add any comments from you there\n- All original fields from the rule.\n- The added field: `next_execution_date`.\n\n**Do not execute or log rule execution.** Only prepare and return the filtered list.\n\n---\n\n## Error Handling\n- If any tool call fails, include error details and the input parameters used for that tool in the output.\n\n## Context\n- Today is {{ $now }}\n\n---\n\n## Example Output json\n```json\n[\n  {\n    \"id\": \"f29b9c00-f529-4b5c-8529-da678daf96aa\",\n    \"rule_name\": \"AWS Infrastructure Payments\",\n    \"execution_frequency\": \"monthly\",\n    \"next_execution_date\": \"2025-08-01\",\n    \"short_description\": \"Monthly automatic payment for AWS infrastructure\",\n    \"parameters\": {\n      \"recipients\": [\n        {\n          \"name\": \"AWS Infrastructure\",\n          \"amount\": 3200,\n          \"address\": \"0x2F4a5B6c7D8e9F0a1B2c3D4e5F6a7B8c9D0e1F2a\",\n          \"currency\": \"USDC\"\n        }\n      ],\n      \"description\": \"Monthly AWS infrastructure costs\",\n      \"source_account\": \"0x742d35Cc6669C567b8b75d5e30e4f11C86EBa89A\"\n    },\n    \"total_amount\": 3200,\n    \"start_date\": \"2025-07-01\",\n    \"end_date\": \"2025-12-31\"\n  }\n]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        2144
+      ],
+      "id": "50704cd0-933b-4fe6-97f4-8ce8a11e395c",
+      "name": "next_30d_execution_filter"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"id\": \"f29b9c00-f529-4b5c-8529-da678daf96aa\",\n    \"rule_name\": \"AWS Infrastructure Payments\",\n    \"execution_frequency\": \"monthly\",\n    \"next_execution_date\": \"2025-08-01\",\n    \"short_description\": \"Monthly automatic payment for AWS infrastructure\",\n    \"parameters\": {\n      \"recipients\": [\n        {\n          \"name\": \"AWS Infrastructure\",\n          \"amount\": 3200,\n          \"address\": \"0x2F4a5B6c7D8e9F0a1B2c3D4e5F6a7B8c9D0e1F2a\",\n          \"currency\": \"USDC\"\n        }\n      ],\n      \"description\": \"Monthly AWS infrastructure costs\",\n      \"source_account\": \"0x742d35Cc6669C567b8b75d5e30e4f11C86EBa89A\"\n    },\n    \"total_amount\": 3200,\n    \"start_date\": \"2025-07-01\",\n    \"end_date\": \"2025-12-31\"\n  }\n]",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        2368
+      ],
+      "id": "70671527-9adc-468e-aee6-644a61efeccb",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        2000
+      ],
+      "id": "633e7092-46ec-4467-b17f-efe7381727c4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        2400
+      ],
+      "id": "b7e674d7-a00b-4838-a587-0af84b37057b",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "rm5oz1RQT1hDoDGD",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        288,
+        2576
+      ],
+      "id": "a831fa4d-2b34-43e7-b4c8-88804481e403",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "rm5oz1RQT1hDoDGD",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Crypto": [
+      {
+        "json": {
+          "sessionId": "bcb1d4f5-7adf-447c-a7d4-ae1023f8084d"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Treasury Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save_payment_rule": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Treasury Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "execution_ai": {
+      "main": [
+        [
+          {
+            "node": "Execution agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Execution agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto": {
+      "main": [
+        [
+          {
+            "node": "Execution agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_active_rules": {
+      "ai_tool": [
+        [
+          {
+            "node": "Execution agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save_execition_result": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Execution agent": {
+      "main": [
+        []
+      ]
+    },
+    "get_crypto_accounts_list": {
+      "ai_tool": [
+        [
+          {
+            "node": "Treasury Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_quick_links": {
+      "ai_tool": [
+        [
+          {
+            "node": "Treasury Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        []
+      ]
+    },
+    "Zep": {
+      "ai_memory": [
+        [
+          {
+            "node": "Treasury Assistant",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Treasury Assistant": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "next_30d_execution_filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "get_active_rules1": {
+      "ai_tool": [
+        [
+          {
+            "node": "next_30d_execution_filter",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "next_30d_execution_filter": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "next_30d_execution_filter",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "next_30d_execution_filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "next_30d_execution_filter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "784bc1b7-f2d7-481b-b058-6890ee3af65d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3a9b969015f6df721a5df713d980b1e2f4e3136533428b5700d21275b83b4913"
+  },
+  "id": "uylLuIuswwC4xIQ4",
+  "tags": []
+}
