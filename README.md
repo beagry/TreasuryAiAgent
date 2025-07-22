@@ -194,20 +194,6 @@ As emphasized in requirements, **100% evaluation testing is mandatory** before a
 - **AI Optimization**: Advanced AI-powered payment optimization
 - **Enterprise Features**: Multi-tenant architecture, advanced RBAC, custom workflows
 
-## 📞 Support & Contact Information
-
-### Development Team
-- **Project Lead**: Denis Kozlov (denniskozlov@icloud.com)
-- **Development Phase**: MVP Core Implementation
-- **Current Sprint**: AI Agent Implementation + Database Integration
-- **Next Review**: Weekly sprint planning
-
-### Documentation Maintenance
-- **Last Updated**: July 22, 2025
-- **Document Owner**: Denis Kozlov
-- **Review Cycle**: Weekly updates during development, monthly after production
-- **Change Management**: All documentation changes tracked in project artifacts
-
 ### Getting Started Guide
 
 #### For Developers
