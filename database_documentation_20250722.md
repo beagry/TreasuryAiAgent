@@ -10,117 +10,105 @@ Payment AI uses a hybrid PostgreSQL + pgvector architecture that separates struc
 
 #### 1. Chat Sessions Management
 ```sql
--- ChatGPT-style multi-chat interface support
-CREATE TABLE chat_sessions (
-    chat_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
-    session_name VARCHAR(255),
-    status VARCHAR(50) DEFAULT 'draft', -- draft, completed, read_only, abandoned
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    completed_at TIMESTAMP WITH TIME ZONE,
-    rule_id UUID, -- Links to payment_scripts when rule is created
-    
-    INDEX idx_chat_user (user_id),
-    INDEX idx_chat_status (status),
-    INDEX idx_chat_created (created_at)
-);
+create table public.chat_sessions (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  chat_name character varying(255) null,
+  rule_type character varying(50) null,
+  status character varying(50) null default 'draft'::character varying,
+  script_id uuid null,
+  is_read_only boolean null default false,
+  created_at timestamp without time zone null default now(),
+  updated_at timestamp without time zone null default now(),
+  last_activity timestamp without time zone null default now(),
+  constraint chat_sessions_pkey primary key (id),
+  constraint fk_chat_sessions_script_id foreign KEY (script_id) references payment_scripts (id) on delete set null
+) TABLESPACE pg_default;
+
+create index IF not exists idx_chat_sessions_status on public.chat_sessions using btree (status) TABLESPACE pg_default;
+
+create index IF not exists idx_chat_sessions_updated_at on public.chat_sessions using btree (updated_at) TABLESPACE pg_default;
+
+create index IF not exists idx_chat_sessions_script_id on public.chat_sessions using btree (script_id) TABLESPACE pg_default;
+
+create trigger trigger_chat_sessions_updated_at BEFORE
+update on chat_sessions for EACH row
+execute FUNCTION update_updated_at_column ();
 ```
 
 #### 2. AI Conversations
 ```sql
 -- Message history for each chat session
-CREATE TABLE ai_conversations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    chat_id UUID NOT NULL REFERENCES chat_sessions(chat_id),
-    message_type VARCHAR(20) NOT NULL, -- user, assistant, system
-    content TEXT NOT NULL,
-    context_data JSONB, -- Additional context for AI processing
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    INDEX idx_conv_chat (chat_id),
-    INDEX idx_conv_type (message_type),
-    INDEX idx_conv_created (created_at)
-);
+create table public.ai_conversations (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  chat_id uuid not null,
+  session_id uuid not null,
+  message_type character varying(50) not null,
+  content text not null,
+  parameters_extracted jsonb null,
+  script_id uuid null,
+  created_at timestamp without time zone null default now(),
+  status character varying(20) null default 'pending'::character varying,
+  constraint ai_conversations_pkey primary key (id),
+  constraint ai_conversations_chat_id_fkey foreign KEY (chat_id) references chat_sessions (id) on delete CASCADE
+) TABLESPACE pg_default;
+
+create index IF not exists idx_ai_conversations_chat_id on public.ai_conversations using btree (chat_id) TABLESPACE pg_default;
+
+create index IF not exists idx_ai_conversations_session_id on public.ai_conversations using btree (session_id) TABLESPACE pg_default;
+
+create index IF not exists idx_ai_conversations_status on public.ai_conversations using btree (status) TABLESPACE pg_default;
+
+create trigger trigger_update_chat_activity
+after INSERT on ai_conversations for EACH row
+execute FUNCTION update_chat_last_activity ();
 ```
 
-#### 3. Payment Scripts (Core Rules)
+#### 3. Payment Rules
 ```sql
 -- Structured payment rule definitions
-CREATE TABLE payment_scripts (
-    script_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
-    chat_id UUID REFERENCES chat_sessions(chat_id),
-    
-    -- Rule Metadata
-    rule_name VARCHAR(255) NOT NULL,
-    rule_type VARCHAR(50) NOT NULL, -- contractor_payment, revenue_allocation, profit_distribution
-    status VARCHAR(50) DEFAULT 'draft', -- draft, active, paused, archived
-    
-    -- Financial Parameters
-    source_account JSONB NOT NULL, -- {address, type, name}
-    recipients JSONB NOT NULL, -- [{address, name, share/amount}]
-    amount_logic JSONB NOT NULL, -- {type: fixed/percentage/conditional, value, conditions}
-    
-    -- Execution Configuration
-    execution_schedule JSONB, -- {type: one_time/recurring, frequency, start_date}
-    conditions JSONB, -- Additional conditions for execution
-    limits JSONB, -- Safety limits and constraints
-    
-    -- Approval and Safety
-    requires_approval BOOLEAN DEFAULT true,
-    user_approval BOOLEAN DEFAULT false,
-    safety_checks JSONB, -- Validation rules and safety constraints
-    
-    -- Metadata
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    last_execution TIMESTAMP WITH TIME ZONE,
-    
-    INDEX idx_script_user (user_id),
-    INDEX idx_script_type (rule_type),
-    INDEX idx_script_status (status),
-    INDEX idx_script_chat (chat_id)
-);
+create table public.payment_scripts (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  rule_name text not null default 'Rule Name #'::text,
+  status character varying(50) null default 'draft'::character varying,
+  parameters jsonb not null,
+  created_at timestamp with time zone null default now(),
+  updated_at timestamp with time zone null default now(),
+  created_by text null,
+  total_amount numeric(18, 6) null,
+  execution_frequency character varying(50) null,
+  start_date date null,
+  end_date date null,
+  short_description text null,
+  last_time_executed timestamp with time zone null,
+  constraint payment_scripts_pkey primary key (id)
+) TABLESPACE pg_default;
+
+create index IF not exists idx_payment_scripts_status on public.payment_scripts using btree (status) TABLESPACE pg_default;
+
+create index IF not exists idx_payment_scripts_execution_frequency on public.payment_scripts using btree (execution_frequency) TABLESPACE pg_default;
+
+create index IF not exists idx_payment_scripts_created_at on public.payment_scripts using btree (created_at) TABLESPACE pg_default;
+
+create trigger trigger_payment_scripts_updated_at BEFORE
+update on payment_scripts for EACH row
+execute FUNCTION update_updated_at_column ();
 ```
 
-#### 4. Payment Executions
+#### 4. Rules Executions history
 ```sql
 -- Execution history and results
-CREATE TABLE payment_executions (
-    execution_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    script_id UUID NOT NULL REFERENCES payment_scripts(script_id),
-    
-    -- Execution Details
-    execution_type VARCHAR(20) NOT NULL, -- mock, real
-    status VARCHAR(50) NOT NULL, -- pending, completed, failed, cancelled
-    
-    -- Transaction Data
-    source_account VARCHAR(255) NOT NULL,
-    recipients JSONB NOT NULL, -- Actual recipients and amounts
-    total_amount DECIMAL(20,8),
-    currency VARCHAR(10),
-    
-    -- Blockchain/Payment Data
-    transaction_hashes JSONB, -- Array of transaction hashes if applicable
-    gas_fees DECIMAL(20,8),
-    network VARCHAR(50),
-    
-    -- Execution Context
-    triggered_by VARCHAR(50), -- schedule, manual, condition
-    trigger_context JSONB,
-    error_details TEXT,
-    
-    -- Timestamps
-    scheduled_at TIMESTAMP WITH TIME ZONE,
-    executed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    completed_at TIMESTAMP WITH TIME ZONE,
-    
-    INDEX idx_exec_script (script_id),
-    INDEX idx_exec_status (status),
-    INDEX idx_exec_type (execution_type),
-    INDEX idx_exec_scheduled (scheduled_at)
-);
+create table public.mock_execution_history (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  rule_id uuid not null,
+  execution_date timestamp with time zone not null default now(),
+  status text null default 'success'::text,
+  constraint mock_execution_history_pkey primary key (id),
+  constraint mock_execution_history_rule_id_fkey foreign KEY (rule_id) references payment_scripts (id) on delete CASCADE
+) TABLESPACE pg_default;
+
+create index IF not exists idx_mock_execution_history_script_id on public.mock_execution_history using btree (rule_id) TABLESPACE pg_default;
+
+create index IF not exists idx_mock_execution_history_execution_date on public.mock_execution_history using btree (execution_date) TABLESPACE pg_default;
 ```
 
 #### 5. Treasury Configuration
@@ -156,62 +144,30 @@ CREATE TABLE treasury_configuration (
 #### 6. Company Knowledge Base
 ```sql
 -- Progressive learning of company entities
-CREATE TABLE company_knowledge_base (
-    entity_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
-    
-    -- Entity Information
-    entity_type VARCHAR(50) NOT NULL, -- account, recipient, amount, schedule, condition
-    entity_name VARCHAR(255) NOT NULL,
-    entity_data JSONB NOT NULL, -- Structured entity information
-    
-    -- Learning Metadata
-    confidence_score DECIMAL(3,2) DEFAULT 0.50, -- 0.00 to 1.00
-    usage_count INTEGER DEFAULT 1,
-    last_used TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- User Validation
-    user_verified BOOLEAN DEFAULT false,
-    verification_date TIMESTAMP WITH TIME ZONE,
-    
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    INDEX idx_knowledge_user (user_id),
-    INDEX idx_knowledge_type (entity_type),
-    INDEX idx_knowledge_verified (user_verified),
-    INDEX idx_knowledge_confidence (confidence_score)
-);
-```
+create table public.company_knowledge_base (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  entity_type character varying(100) not null,
+  entity_name character varying(255) not null,
+  entity_value text not null,
+  confidence_score numeric(3, 2) null default 0.95,
+  usage_count integer null default 1,
+  verified_by_user boolean null default false,
+  created_at timestamp without time zone null default now(),
+  updated_at timestamp without time zone null default now(),
+  last_used timestamp without time zone null default now(),
+  constraint company_knowledge_base_pkey primary key (id)
+) TABLESPACE pg_default;
 
-#### 7. Knowledge Embeddings (Vector Storage)
-```sql
--- Vector storage for semantic search and matching
-CREATE TABLE knowledge_embeddings (
-    embedding_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    entity_id UUID NOT NULL REFERENCES company_knowledge_base(entity_id),
-    
-    -- Vector Data
-    embedding VECTOR(1536), -- OpenAI embedding dimension
-    embedding_model VARCHAR(100) DEFAULT 'text-embedding-3-small',
-    
-    -- Search Metadata
-    searchable_text TEXT NOT NULL,
-    entity_context JSONB, -- Additional context for matching
-    
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    INDEX idx_embedding_entity (entity_id)
-);
+create index IF not exists idx_company_knowledge_entity_type on public.company_knowledge_base using btree (entity_type) TABLESPACE pg_default;
 
--- Vector similarity search index
-CREATE INDEX idx_embedding_cosine ON knowledge_embeddings 
-USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+create index IF not exists idx_company_knowledge_entity_name on public.company_knowledge_base using btree (entity_name) TABLESPACE pg_default;
+
+create index IF not exists idx_company_knowledge_verified on public.company_knowledge_base using btree (verified_by_user) TABLESPACE pg_default;
 ```
 
 ### Audit and Compliance Tables
 
-#### 8. Rule Audit Trail
+#### 7. Rule Audit Trail
 ```sql
 -- Comprehensive audit logging
 CREATE TABLE rule_audit_trail (
@@ -237,34 +193,6 @@ CREATE TABLE rule_audit_trail (
     INDEX idx_audit_user (user_id),
     INDEX idx_audit_action (action_type),
     INDEX idx_audit_created (created_at)
-);
-```
-
-#### 9. Mock Execution History
-```sql
--- Track all mock executions for validation
-CREATE TABLE mock_execution_history (
-    mock_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    script_id UUID NOT NULL REFERENCES payment_scripts(script_id),
-    chat_id UUID REFERENCES chat_sessions(chat_id),
-    
-    -- Mock Details
-    mock_parameters JSONB NOT NULL, -- Input parameters for mock
-    mock_results JSONB NOT NULL, -- Calculated results
-    validation_status VARCHAR(50) NOT NULL, -- passed, failed, warning
-    validation_details JSONB, -- Validation results and issues
-    
-    -- User Interaction
-    user_approved BOOLEAN,
-    user_feedback TEXT,
-    proceeded_to_real BOOLEAN DEFAULT false,
-    
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    INDEX idx_mock_script (script_id),
-    INDEX idx_mock_chat (chat_id),
-    INDEX idx_mock_status (validation_status),
-    INDEX idx_mock_created (created_at)
 );
 ```
 
@@ -301,7 +229,7 @@ See the complete setup script in `payment_ai_database_setup_20250720.sql` which 
 
 ---
 
-*Last Updated: July 22, 2025*
+*Last Updated: July 23, 2025*
 *Database Version: Hybrid PostgreSQL + pgvector with Knowledge Base*
 *Setup Script: payment_ai_database_setup_20250720.sql*communication patterns
 - **Context Limitation Handling**: Smart context management for large conversations
@@ -418,7 +346,7 @@ See the complete setup script in `payment_ai_database_setup_20250720.sql` which 
 
 ---
 
-*Last Updated: July 22, 2025*
+*Last Updated: July 23, 2025*
 *Development Phase: Core Implementation Sprint*
 *Next Review: Weekly sprint planning meetings*
 *Critical Path: Rule saving implementation → End-to-end testing → MVP completion*
