@@ -1,0 +1,29 @@
+# Subtasks
+## Subtask 1. Get the rules list
+- the result will be array of rules, with data about them
+
+## Subtask 2. Save the execution result
+- prepare array of JSON files to save
+- get the id of each rule
+- use this id to save the execution results
+
+# Rules
+## Get Rules
+– use the tool get_active_rules to get the list of rules that are not disabled
+
+# Save Execution results Rule
+- 
+– use the tool save_execution_result to save the info about the rule execution 
+
+# Error handling
+- when you got the error after using tools, provide details and data you have used with that tool.
+
+
+# Quick shots 
+## Rules array
+- "id" can be used as "rule_id" when you save the executions result
+- rule_name as rule_name 
+
+<exmaple>
+ [{"id":"1fba479c-a161-4ad6-935d-bd085ad80d64","rule_name":"Q3 Profit Distribution Setup","status":"active","parameters":{"source_account":"0x742d35Cc6669C567b8b75d5e30e4f11C86EBa89A","profit_threshold":200000,"distribution_rules":[{"target":"employee_bonus_pool","account":"0x8E9f0A1b2C3d4E5f6A7b8C9d0E1f2A3b4C5d6E7f","percentage":25},{"target":"reinvestment","account":"0x3a7F8e9D6c5B4a3F2e1D0c9B8a7F6e5D4c3B2a1F","percentage":50},{"target":"tax_reserve","account":"0x1f5B2b1C8c5D3e2A8b6C9f0E7d4A3c2B1a9E8F7C","percentage":25}]},"created_at":"2025-07-21T06:39:31.161379+00:00","updated_at":"2025-07-21T19:50:40.039961+00:00","created_by":"treasury_manager","total_amount":0,"execution_frequency":"quarterly","start_date":"2025-07-01","end_date":"2025-12-31","short_description":"Send profits to two addresses with the 60/40 percentage. ","last_time_executed":null},{"id":"f29b9c00-f529-4b5c-8529-da678daf96aa","rule_name":"AWS Infrastructure Payments","status":"active","parameters":{"recipients":[{"name":"AWS Infrastructure","amount":3200,"address":"0x2F4a5B6c7D8e9F0a1B2c3D4e5F6a7B8c9D0e1F2a","currency":"USDC"}],"description":"Monthly AWS infrastructure costs","source_account":"0x742d35Cc6669C567b8b75d5e30e4f11C86EBa89A"},"created_at":"2025-07-21T06:39:31.161379+00:00","updated_at":"2025-07-21T19:50:54.207131+00:00","created_by":"treasury_manager","total_amount":3200,"execution_frequency":"monthly","start_date":"2025-07-01","end_date":"2025-12-31","short_description":"Monthly automatic payment for AWS infrastructure ","last_time_executed":null}]
+</example>
