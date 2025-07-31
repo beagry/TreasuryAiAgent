@@ -169,31 +169,26 @@ create index IF not exists idx_company_knowledge_verified on public.company_know
 
 #### 7. Rule Audit Trail
 ```sql
--- Comprehensive audit logging
-CREATE TABLE rule_audit_trail (
-    audit_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    script_id UUID REFERENCES payment_scripts(script_id),
-    user_id UUID NOT NULL,
-    
-    -- Action Details
-    action_type VARCHAR(50) NOT NULL, -- create, update, delete, execute, approve
-    action_details JSONB NOT NULL, -- What changed
-    
-    -- Context
-    source_component VARCHAR(50), -- chat, rules_ui, api, system
-    user_context JSONB, -- User session and context
-    
-    -- Change Tracking
-    old_values JSONB, -- Previous state
-    new_values JSONB, -- New state
-    
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    INDEX idx_audit_script (script_id),
-    INDEX idx_audit_user (user_id),
-    INDEX idx_audit_action (action_type),
-    INDEX idx_audit_created (created_at)
-);
+create table public.rule_audit_trail (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  script_id uuid not null,
+  action_type character varying(50) not null,
+  user_id character varying(255) not null,
+  timestamp timestamp without time zone null default now(),
+  changes_made jsonb null,
+  reason text null,
+  ip_address inet null,
+  session_id uuid null,
+  short_description text null,
+  constraint rule_audit_trail_pkey primary key (id),
+  constraint rule_audit_trail_script_id_fkey foreign KEY (script_id) references payment_scripts (id) on delete CASCADE
+) TABLESPACE pg_default;
+
+create index IF not exists idx_rule_audit_trail_script_id on public.rule_audit_trail using btree (script_id) TABLESPACE pg_default;
+
+create index IF not exists idx_rule_audit_trail_timestamp on public.rule_audit_trail using btree ("timestamp") TABLESPACE pg_default;
+
+create index IF not exists idx_rule_audit_trail_action_type on public.rule_audit_trail using btree (action_type) TABLESPACE pg_default;
 ```
 
 -- Auto-logging trigger for payment_scripts table
