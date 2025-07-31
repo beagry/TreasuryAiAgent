@@ -196,6 +196,59 @@ CREATE TABLE rule_audit_trail (
 );
 ```
 
+-- Auto-logging trigger for payment_scripts table
+-- Creates audit log entry automatically when new payment rule is created
+``` SQL
+CREATE OR REPLACE FUNCTION log_payment_script_creation()
+RETURNS TRIGGER 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO public.rule_audit_trail (
+        script_id,
+        action_type,
+        user_id,
+        timestamp,
+        changes_made,
+        reason,
+        ip_address,
+        session_id,
+        short_description
+    ) VALUES (
+        NEW.id,
+        'created',
+        '00000000-0000-0000-0000-000000000001',
+        NOW(),
+        jsonb_build_object(
+            'rule_created', true,
+            'rule_name', NEW.rule_name,
+            'short_description', NEW.short_description,
+            'parameters', NEW.parameters,
+            'created_at', NEW.created_at,
+            'status', NEW.status
+        ),
+        'AI agent created new payment rule',
+        '127.0.0.1'::inet,
+        COALESCE(NEW.chat_id, '00000000-0000-0000-0000-000000000002'),
+        CASE 
+            WHEN NEW.short_description IS NOT NULL AND NEW.short_description != '' 
+            THEN NEW.short_description
+            ELSE CONCAT('Created: ', NEW.rule_name)
+        END
+    );
+    
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trigger_log_payment_script_creation ON public.payment_scripts;
+
+CREATE TRIGGER trigger_log_payment_script_creation
+    AFTER INSERT ON public.payment_scripts
+    FOR EACH ROW
+    EXECUTE FUNCTION log_payment_script_creation();
+```
+
 ## Database Setup Script
 
 See the complete setup script in `payment_ai_database_setup_20250720.sql` which includes:
